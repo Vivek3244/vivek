@@ -13,6 +13,7 @@ import Register from './pages/Register';
 import Profile from './pages/Profile';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
+import Compare from './pages/Compare';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
                     <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/purchase" element={<Purchase />} />
+                    <Route path="/compare" element={<Compare />} />
                     <Route path="/sell" element={<Sell />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/login" element={<Login />} />

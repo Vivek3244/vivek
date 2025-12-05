@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Diamond, Eye, Heart, Star, User, Calendar, ExternalLink, MessageCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Search, Filter, Diamond, Eye, Heart, Star, User, Calendar, ExternalLink, MessageCircle, GitCompare } from 'lucide-react';
+import { useComparison } from '../hooks/useComparison';
 
 interface Diamond {
   _id: string;
@@ -41,6 +43,7 @@ const Purchase: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState('desc');
+  const { addToComparison, removeFromComparison, isInComparison, getComparisonCount } = useComparison();
 
   const cuts = [
     'Round Brilliant', 'Princess', 'Emerald', 'Oval', 'Cushion',
@@ -140,6 +143,18 @@ const Purchase: React.FC = () => {
     const message = `Hi! I'm interested in the ${diamond.name} (${diamond.carat} carat, ${diamond.cut} cut, ${diamond.color} color, ${diamond.clarity} clarity) priced at ${formatPrice(diamond.price)}. Could you please provide more details?`;
     const whatsappUrl = `https://wa.me/15551234567?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
+  };
+
+  const handleCompare = (diamond: Diamond) => {
+    if (isInComparison(diamond._id)) {
+      removeFromComparison(diamond._id);
+    } else {
+      try {
+        addToComparison(diamond);
+      } catch (error: any) {
+        alert(error.message);
+      }
+    }
   };
 
   const DiamondModal = ({ diamond, onClose }: { diamond: Diamond; onClose: () => void }) => (
@@ -259,6 +274,15 @@ const Purchase: React.FC = () => {
             </div>
             
             <div className="mt-6 md:mt-0 flex items-center space-x-4">
+              {getComparisonCount() > 0 && (
+                <Link
+                  to="/compare"
+                  className="px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all duration-300 flex items-center font-semibold transform hover:scale-105"
+                >
+                  <GitCompare className="w-5 h-5 mr-2" />
+                  Compare ({getComparisonCount()})
+                </Link>
+              )}
               <select
                 value={`${sortBy}-${sortOrder}`}
                 onChange={(e) => {
@@ -517,6 +541,17 @@ const Purchase: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex space-x-3">
+                    <button
+                      onClick={() => handleCompare(diamond)}
+                      className={`flex-1 px-4 py-3 rounded-xl hover:shadow-lg transition-all duration-300 text-sm font-semibold transform hover:scale-105 flex items-center justify-center ${
+                        isInComparison(diamond._id)
+                          ? 'bg-gradient-to-r from-red-500 to-red-600 text-white'
+                          : 'bg-gradient-to-r from-purple-500 to-purple-600 text-white'
+                      }`}
+                    >
+                      <GitCompare className="w-4 h-4 mr-2" />
+                      {isInComparison(diamond._id) ? 'Remove' : 'Compare'}
+                    </button>
                     <button
                       onClick={() => setSelectedDiamond(diamond)}
                       className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all duration-300 text-sm font-semibold transform hover:scale-105 flex items-center justify-center"
